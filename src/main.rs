@@ -10,7 +10,6 @@ use std::ffi::CString;
 fn main(){
 	let file = File::open("input.txt").expect("Unable to open File");
 	let reader = BufReader::new(file);
-	let mut API: String = "https://api.open-meteo.com/v1/forecast?latitude=&longitude=&current_weather=True".to_owned(); 
 	let line: String;
  
 	let folder = CString::new("/usr/bin/curl").expect("Fail"); 
@@ -26,10 +25,10 @@ fn main(){
 
 		match unsafe {fork()}{
 			Ok(ForkResult::Child) => { 
-				API = format!("https://api.open-meteo.com/v1/forecast?latitude={}&longitude={}&current_weather=True", data_points[0], data_points[0]);
-				let	API_f = CString::new(API).expect("Fail");
+				let loc_api = format!("https://api.open-meteo.com/v1/forecast?latitude={}&longitude={}&current_weather=True", data_points[0], data_points[0]);
+				let api = CString::new(loc_api).expect("Fail");
 				unsafe {
-					let exe_value = execlp(folder.as_ptr(), command.as_ptr(), option.as_ptr(), file_input.as_ptr(), API_f.as_ptr(), std::ptr::null::<*const libc::c_char>());
+					let exe_value = execlp(folder.as_ptr(), command.as_ptr(), option.as_ptr(), file_input.as_ptr(), api.as_ptr(), std::ptr::null::<*const libc::c_char>());
  
 					if exe_value < 0 {
 						perror(error.as_ptr()); 
