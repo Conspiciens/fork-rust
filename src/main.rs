@@ -28,6 +28,8 @@ fn main(){
 	for (i, line) in reader.lines().enumerate() {
 		let file_name = format!("file{}.json", i + 1);
 		let file_input = CString::new(file_name).expect("Fail to create CString"); 
+
+		/* Split the coordinates */ 
 		let data: String = line.expect("Error in data"); 
 		let line_split = data.split(" "); 
 		let data_points: Vec<&str> = line_split.collect();
