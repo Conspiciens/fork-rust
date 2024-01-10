@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
+use nix::sys::wait::waitpid;
 use nix::sys::wait::wait;
 use nix::libc::{perror, execlp};
 use nix::unistd::{getpid, fork, ForkResult};
@@ -32,10 +33,10 @@ fn main(){
 		let data_points: Vec<&str> = line_split.collect();
 
 		match unsafe { fork() } {
-
+			
 			Ok(ForkResult::Child) => { 
 				let loc_api = format!("https://api.open-meteo.com/v1/forecast?latitude={}&longitude={}&current_weather=True", 
-				data_points[0], data_points[0]);
+				data_points[0], data_points[1]);
 				println!("Hello from child {}", getpid());
 				let api = CString::new(loc_api).expect("Fail");
 
@@ -54,8 +55,9 @@ fn main(){
 			}
  
 			Ok(ForkResult::Parent {child}) => {
-				wait().expect("Error");
+				// wait().expect("Error");
 				println!("Hello from parent {}", getpid());  
+				waitpid(child, None).unwrap(); 
 			}
 
 			Err(_) => println!("Fork Failed"), 
