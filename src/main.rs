@@ -1,7 +1,6 @@
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
 use nix::sys::wait::waitpid;
-use nix::sys::wait::wait;
 use nix::libc::{perror, execlp};
 use nix::unistd::{getpid, fork, ForkResult};
 use nix::libc; 
@@ -22,12 +21,13 @@ fn main(){
 	/* Creates CString for variables for execlp */
 	let folder = CString::new("/usr/bin/curl").expect("Fail"); 
 	let command = CString::new("curl").expect("Fail");
-	let file_input = CString::new("file.json").expect("Fail"); 
 	let option = CString::new("-o").expect("Fail");
 	let error = CString::new("Error").expect("fail");  		
 
 	/* Read every line in the input text file */ 
-	for line in reader.lines() {
+	for (i, line) in reader.lines().enumerate() {
+		let file_name = format!("file{}.json", i + 1);
+		let file_input = CString::new(file_name).expect("Fail to create CString"); 
 		let data: String = line.expect("Error in data"); 
 		let line_split = data.split(" "); 
 		let data_points: Vec<&str> = line_split.collect();
@@ -55,7 +55,6 @@ fn main(){
 			}
  
 			Ok(ForkResult::Parent {child}) => {
-				// wait().expect("Error");
 				println!("Hello from parent {}", getpid());  
 				waitpid(child, None).unwrap(); 
 			}
